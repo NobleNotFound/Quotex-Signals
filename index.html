@@ -3,31 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Noble Ai Trading Signals</title>
+    <title>Trading Signal Bot</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="app">
         <div class="currency">
-            <div class="currency-value">EUR/USD</div>
+            <span class="currency-label">Currency Pair:</span>
+            <span class="currency-value">EUR/USD</span>
             <div class="currency-container"></div>
         </div>
-
         <div class="set-time">
-            <div class="time_val">1 Min</div>
+            <span>Time Interval:</span>
+            <span class="time-val">1 Min</span>
             <div class="set-time-items"></div>
         </div>
-
         <div class="forecast">
+            <span>Forecast:</span>
             <div class="value">Loading...</div>
         </div>
-
-        <button class="btn action" data-init-status="wait">
-            <div class="text">Start Signal</div>
-        </button>
+        <button class="btn action">Start Signal</button>
     </div>
 
     <script src="script.js"></script>
 </body>
 </html>
-e
