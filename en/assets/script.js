@@ -1,83 +1,113 @@
-// API Key for Finnhub
-const FINNHUB_API_KEY = 'd09q2j1r01qus8ren8sgd09q2j1r01qus8ren8t0'; // Your provided Finnhub API key
-
-// Global variables
+// Fetch the necessary elements
 const $app = document.querySelector('.app');
 const $currency = $app.querySelector('.currency');
+const $currencyContainer = $currency.querySelector('.currency-container');
 const $currencyValue = $currency.querySelector('.currency-value');
 const $blockSetTime = $app.querySelector('.set-time');
-const $timeValue = $blockSetTime.querySelector('.time_val');
+const $timeValue = $blockSetTime.querySelector('.time-val');
 const $timeItems = $blockSetTime.querySelector('.set-time-items');
 const $blockForecast = $app.querySelector('.forecast');
 const $blockForecastValue = $blockForecast.querySelector('.value');
 const $btnAction = $app.querySelector('.btn.action');
 const $btnActionText = $btnAction.querySelector('.text');
 
-const currency = ["AUD/USD", "EUR/USD", "GBP/JPY", "AUD/JPY", "USD/JPY"];
-let currentTime = getCurrentTime();
-let sessionCode = localStorage.getItem('sessionCode') || '';
+// Currency pairs and time interval
+const currency = ["AUD/CAD", "GBP/JPY", "CHF/JPY", "AUD/USD", "EUR/CAD", "USD/JPY", "EUR/USD"];
+let currentCurrency = "EUR/USD";
+let sessionCode = localStorage.getItem('sessionCode') ? localStorage.getItem('sessionCode') : '';
 
-// Add available currencies to dropdown
-currency.map(item => {
+// Set up the UI with initial values
+$currencyValue.textContent = currency[0];
+currency.forEach(item => {
     let div = document.createElement('div');
     div.classList.add('item');
     div.textContent = item;
-    $currency.querySelector('.currency-container').appendChild(div);
+    $currencyContainer.appendChild(div);
 });
 
-// Set time options
 setTime();
 
-window.addEventListener('click', (e) => {
-    if (!$currency.querySelector('.currency-container').contains(e.target) && !$currency.contains(e.target)) {
-        $currency.querySelector('.currency-container').classList.remove('windowShow');
-    }
-
-    if (!$timeItems.contains(e.target) && !$blockSetTime.contains(e.target)) {
-        $timeItems.classList.remove('windowShow');
-    }
-});
-
+// Click listener for currency pair selection
 $currency.addEventListener('click', () => {
-    $currency.querySelector('.currency-container').classList.add('windowShow');
+    $currencyContainer.classList.toggle('windowShow');
 });
-
-$currency.querySelector('.currency-container').querySelectorAll('.item').forEach(item => {
+$currencyContainer.querySelectorAll('.item').forEach(item => {
     item.addEventListener('click', (e) => {
-        let val = item.textContent;
-        $currencyValue.textContent = val;
-        $currency.querySelector('.currency-container').classList.remove('windowShow');
+        e.stopPropagation();
+        $currencyValue.textContent = item.textContent;
+        currentCurrency = item.textContent;
+        $currencyContainer.classList.remove('windowShow');
     });
 });
 
+// Click listener for time interval selection
 $blockSetTime.addEventListener('click', () => {
-    $timeItems.classList.add('windowShow');
+    $timeItems.classList.toggle('windowShow');
 });
 
-// Handle button action click
+// Initialize the time items
+timeItemsActivate();
+
+// Button click listener for fetching signals
 $btnAction.addEventListener('click', () => {
-    let status = $btnAction.dataset.initStatus;
-    if (status === 'loading') return;
-
-    $btnAction.dataset.initStatus = 'loading';
-    $blockForecastValue.innerHTML = '<div class="spinner"></div>';
-    $blockForecast.classList.remove('down', 'up');
-
-    // Fetch real signal from Finnhub API
-    fetchSignalFromAPI();
-    setTimeout(() => {
-        setTimeOut(1);
-    }, 1000);
+    $btnActionText.textContent = "Loading...";
+    getSignal(currentCurrency);  // Fetch the signal based on the current currency pair
+    $blockForecastValue.innerHTML = '<div class="spinner"></div>';  // Show loading indicator
 });
 
-// Utility functions
-function getCurrentTime() {
-    const now = new Date();
-    const hours = now.getHours().toString().padStart(2, "0");
-    const minutes = now.getMinutes().toString().padStart(2, "0");
-    return `${hours}:${minutes}`;
+// API Key and endpoint for Finnhub (replace 'YOUR_API_KEY' with actual key)
+const FINNHUB_API_KEY = 'YOUR_API_KEY';  // Replace with your Finnhub API Key
+const BASE_URL = 'https://finnhub.io/api/v1/quote';
+
+// Function to fetch the latest signal (BUY/SELL) based on real-time data
+function getSignal(currencyPair) {
+    // Use Finnhub API to fetch stock/forex data (example with EUR/USD)
+    fetch(`${BASE_URL}?symbol=${currencyPair}&token=${FINNHUB_API_KEY}`)
+        .then(response => response.json())
+        .then(data => {
+            // Analyze the fetched data for signals
+            const signal = analyzeDataForSignal(data);
+            // Update the forecast section
+            displaySignal(signal);
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+            $blockForecastValue.innerHTML = 'Error fetching data';
+        });
 }
 
+// Function to analyze data and determine the signal (up or down)
+function analyzeDataForSignal(data) {
+    // Use the fetched data to determine whether the trend is UP or DOWN
+    // Example: If the current price is higher than the previous close, we may consider it as 'UP' signal.
+    const { c: currentPrice, pc: previousClose } = data;  // 'c' is current price, 'pc' is previous close
+    if (currentPrice > previousClose) {
+        return "UP";
+    } else if (currentPrice < previousClose) {
+        return "DOWN";
+    } else {
+        return "NEUTRAL";  // In case the market is flat
+    }
+}
+
+// Function to update the UI with the signal
+function displaySignal(signal) {
+    $blockForecastValue.textContent = signal;
+    if (signal === "UP") {
+        $blockForecast.classList.add('up');
+        $blockForecast.classList.remove('down');
+    } else if (signal === "DOWN") {
+        $blockForecast.classList.add('down');
+        $blockForecast.classList.remove('up');
+    } else {
+        $blockForecast.classList.remove('up', 'down');
+    }
+
+    // Change the button text
+    $btnActionText.textContent = 'Next Signal';
+}
+
+// Time-related functions
 function setTime() {
     $timeItems.innerHTML = '';
     $timeValue.textContent = '1 Min';
@@ -90,87 +120,12 @@ function setTime() {
     }
 }
 
-function setTimeOut(countMinutes = 1) {
-    let startTime = 0;
-    let endTime = countMinutes * 60;
-    let time = endTime;
-
-    const interval = setInterval(() => {
-        startTime += 1;
-        if (startTime === endTime) {
-            $btnAction.classList.remove('loading');
-            $btnActionText.textContent = 'Next signal';
-            $btnAction.dataset.initStatus = 'wait';
-            clearInterval(interval);
-        } else {
-            time -= 1;
-            $btnActionText.textContent = timeView(time);
-        }
-    }, 1000);
-}
-
-function timeView(countSecond) {
-    const minutes = Math.floor(countSecond / 60);
-    return minutes > 0 ? `${minutes}:${countSecond - (minutes * 60)}` : `0:${countSecond}`;
-}
-
-function getRandomForecast() {
-    return Math.random() < 0.5 ? "DOWN" : "UP";
-}
-
-function fetchSignalFromAPI() {
-    const pair = $currencyValue.textContent;
-
-    // Example API endpoint for Finnhub (you should modify the endpoint according to the actual data you need)
-    const apiUrl = `https://finnhub.io/api/v1/indicator?symbol=${pair}&resolution=1&from=${getUnixTime(0)}&to=${getUnixTime(1)}&token=${FINNHUB_API_KEY}`;
-    
-    fetch(apiUrl)
-        .then(response => response.json())
-        .then(data => {
-            // Use the data to decide the forecast direction
-            const forecast = analyzeDataForSignal(data);
-            $blockForecastValue.innerHTML = forecast;
-
-            if (forecast === 'DOWN') {
-                $blockForecast.classList.add('down');
-            } else {
-                $blockForecast.classList.add('up');
-            }
-        })
-        .catch(err => {
-            console.error("Error fetching API: ", err);
-            $blockForecastValue.innerHTML = "ERROR";
+function timeItemsActivate() {
+    $timeItems.querySelectorAll('.item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.stopPropagation();
+            $timeValue.textContent = item.textContent;
+            $timeItems.classList.remove('windowShow');
         });
-}
-
-function getUnixTime(offset = 0) {
-    const now = new Date();
-    now.setSeconds(now.getSeconds() + offset);
-    return Math.floor(now.getTime() / 1000);
-}
-
-// Analyze the data for a real signal (for example, based on indicators or price movement)
-function analyzeDataForSignal(data) {
-    // Here, you can analyze the data with more complex logic, such as:
-    // 1. Moving averages (SMA, EMA)
-    // 2. RSI (Relative Strength Index)
-    // 3. MACD (Moving Average Convergence Divergence)
-    // 4. Candlestick patterns
-    // For now, it's just a simple analysis.
-
-    // Example: If closing price is higher than opening price, it's an "UP" signal
-    if (data.close > data.open) {
-        return "UP";
-    } else {
-        return "DOWN";
-    }
-}
-
-// Start the real-time signal generation
-simulateRealSignal();
-
-function simulateRealSignal() {
-    setInterval(() => {
-        fetchSignalFromAPI();
-    }, 60000); // 1-minute interval to fetch real signals
+    });
 }
