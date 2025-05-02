@@ -1,30 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trading Signal Bot</title>
-    <link rel="stylesheet" href="style.css">
+	<meta charset="UTF-8">
+	<meta name="viewport"
+		  content="width=device-width, initial-scale=1.0">
+	<title>Noble Ai - Signal Bot</title>
+
+	<!-- Google Fonts -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+	<!-- Styles -->
+	<link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="app">
-        <div class="currency">
-            <span class="currency-label">Currency Pair:</span>
-            <span class="currency-value">EUR/USD</span>
-            <div class="currency-container"></div>
-        </div>
-        <div class="set-time">
-            <span>Time Interval:</span>
-            <span class="time-val">1 Min</span>
-            <div class="set-time-items"></div>
-        </div>
-        <div class="forecast">
-            <span>Forecast:</span>
-            <div class="value">Loading...</div>
-        </div>
-        <button class="btn action">Start Signal</button>
-    </div>
+<div class="app">
+	<div class="display">
+		<div class="logo">
+			<img src="./assets/logo.png" alt="Noble Ai Logo">
+		</div>
 
-    <script src="script.js"></script>
+		<div class="block currency">
+			<div class="tit">Currency Pair</div>
+			<div class="currency-value">EUR/USD</div>
+			<div class="currency-container"></div>
+		</div>
+
+		<div class="block forecast">
+			<div class="tit">Forecast</div>
+			<div class="value">Loading...</div>
+		</div>
+
+		<div class="block set-time">
+			<div class="tit">Time Interval</div>
+			<div class="time-val">1 Min</div>
+			<div class="set-time-items"></div>
+		</div>
+
+		<button class="btn action"><span class="text">Generate Signal</span></button>
+	</div>
+</div>
+
+<!-- Script -->
+<script src="script.js"></script>
 </body>
 </html>
