@@ -1,76 +1,108 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #1c1c1c;
+    font-family: 'Nunito Sans', sans-serif;
+    background-color: #0e0e0e;
     color: #fff;
+    margin: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    margin: 0;
 }
 
 .app {
+    width: 360px;
+    background-color: #1a1a1a;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.7);
     text-align: center;
 }
 
-.currency {
-    font-size: 20px;
-    margin-bottom: 10px;
-}
-
-.set-time {
+.logo img {
+    max-width: 120px;
     margin-bottom: 20px;
 }
 
-.forecast {
+.block {
     margin-bottom: 20px;
 }
 
-.btn {
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
+.tit {
+    font-size: 14px;
+    font-weight: 600;
+    color: #aaa;
+    margin-bottom: 5px;
+}
+
+.currency-value,
+.time-val,
+.value {
+    font-size: 18px;
+    padding: 10px;
+    background: #262626;
+    border-radius: 6px;
     cursor: pointer;
 }
 
-.btn.loading {
-    background-color: #f44336;
-}
-
-.currency-container {
+.currency-container,
+.set-time-items {
+    background: #2d2d2d;
+    border-radius: 6px;
+    margin-top: 5px;
     display: none;
+    max-height: 150px;
+    overflow-y: auto;
 }
 
-.currency-container .item {
+.currency-container.windowShow,
+.set-time-items.windowShow {
+    display: block;
+}
+
+.currency-container .item,
+.set-time-items .item {
+    padding: 8px;
     cursor: pointer;
-    padding: 5px;
+    transition: background 0.3s;
 }
 
 .item:hover {
-    background-color: #444;
+    background: #444;
 }
 
-.set-time-items {
-    display: none;
-}
-
-.set-time-items .item {
+.btn {
+    background: #4CAF50;
+    border: none;
+    color: white;
+    font-weight: 700;
+    padding: 12px 20px;
+    border-radius: 6px;
     cursor: pointer;
-    padding: 5px;
+    font-size: 16px;
+    position: relative;
 }
 
-.set-time-items .item:hover {
-    background-color: #444;
+.btn .spinner {
+    display: none;
+    margin-left: 10px;
 }
 
-.spinner {
-    width: 25px;
-    height: 25px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #3498db;
+.btn.loading .spinner {
+    display: inline-block;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #fff;
     border-radius: 50%;
+    width: 16px;
+    height: 16px;
     animation: spin 1s linear infinite;
+}
+
+.forecast.up .value {
+    color: #4CAF50;
+}
+
+.forecast.down .value {
+    color: #f44336;
 }
 
 @keyframes spin {
